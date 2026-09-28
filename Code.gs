@@ -19,7 +19,7 @@ function doGet(e) {
   if (page === 'user') {
     return HtmlService.createTemplateFromFile('User')
       .evaluate()
-      .setTitle('Mitrphol Internship - User')
+      .setTitle('Mitrphol Internship - user')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1');
   }
 
