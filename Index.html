@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="th" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบขอฝึกงาน - กลุ่มมิตรผล</title>
+  <script>
+    (function () {
+      const originalWarn = console.warn;
+      console.warn = function (...args) {
+        if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) {
+          return;
+        }
+        originalWarn.apply(console, args);
+      };
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff7ff', 100: '#dbeeff', 200: '#b9ddff', 300: '#82c4ff',
+              400: '#43a5ff', 500: '#1685e6', 600: '#0069c7', 700: '#00529b', 800: '#064477', 900: '#0b3962'
+            },
+            accent: { 400: '#62b7ff', 500: '#1685e6', 600: '#00529b', 700: '#003a70' }
+          },
+          animation: {
+            'blob': 'blob 10s infinite',
+            'bounce-short': 'bounce-short 0.3s ease-in-out',
+            'pop-in': 'popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+            'fade-in': 'fadeIn 0.3s ease-out forwards',
+            'draw-check': 'stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards'
+          },
+          keyframes: {
+            blob: {
+              '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' },
+              '33%': { transform: 'translate(30px, -40px) scale(1.1)' },
+              '66%': { transform: 'translate(-20px, 20px) scale(0.95)' }
+            },
+            popIn: {
+              '0%': { opacity: '0', transform: 'scale(0.85) translateY(10px)' },
+              '100%': { opacity: '1', transform: 'scale(1) translateY(0)' }
+            },
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Kanit', sans-serif; scroll-behavior: smooth; }
+    .hidden { display: none !important; }
+
+    /* Animated Dynamic Mesh Background */
+    .bg-animated-mesh {
+      background: radial-gradient(circle at 15% 10%, rgba(22,133,230,.18), transparent 30%), radial-gradient(circle at 85% 15%, rgba(0,82,155,.16), transparent 28%), linear-gradient(135deg, #eef7ff 0%, #f8fbff 48%, #e7f2ff 100%);
+    }
+    .dark .bg-animated-mesh {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    }
+
+    /* Glassmorphism Header & Card Enhancements */
+    .glass-header {
+      background: rgba(255, 255, 255, 0.58);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.62);
+      box-shadow: 0 12px 35px -12px rgba(0, 82, 155, 0.28);
+    }
+    .dark .glass-header {
+      background: rgba(30, 41, 59, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    .form-card, .glass-card {
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .form-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 22px 50px -18px rgba(0, 82, 155, 0.28);
+    }
+    .dark .form-card:hover {
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.62);
+      box-shadow: 0 22px 55px -20px rgba(0, 82, 155, 0.30);
+    }
+    .dark .glass-card {
+      background: rgba(31, 41, 55, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Input Modern Glow & Focus Transitions */
+    input, select, textarea {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #1685e6 !important;
+      box-shadow: 0 0 0 4px rgba(22, 133, 230, 0.18) !important;
+      transform: translateY(-1px);
+    }
+
+    /* Checkmark Animated Icon */
+    .checkmark-circle {
+      stroke-dasharray: 166;
+      stroke-dashoffset: 166;
+      stroke-width: 3;
+      stroke: #15977f;
+      fill: none;
+      animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+    .checkmark-check {
+      transform-origin: 50% 50%;
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+    }
+    @keyframes stroke {
+      100% { stroke-dashoffset: 0; }
+    }
+  
+    /* Blue Glass Morphism Theme */
+    ::selection { background: rgba(22, 133, 230, .22); }
+    .form-card, .glass-card, .glass-header {
+      position: relative;
+      overflow: hidden;
+    }
+    .form-card::before, .glass-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(135deg, rgba(255,255,255,.34), rgba(255,255,255,.06) 42%, transparent 70%);
+    }
+    .form-card > *, .glass-card > * { position: relative; z-index: 1; }
+  </style>
+</head>
+<body class="text-gray-800 dark:text-gray-100 min-h-screen relative overflow-x-hidden bg-animated-mesh transition-colors duration-300 pb-16">
+
+  <!-- Ambient Animated Background Blobs -->
+  <div class="fixed top-0 left-1/4 w-96 h-96 bg-brand-200/40 dark:bg-brand-900/20 rounded-full blur-3xl pointer-events-none animate-blob"></div>
+  <div class="fixed top-1/3 right-10 w-80 h-80 bg-accent-400/20 dark:bg-amber-600/10 rounded-full blur-3xl pointer-events-none animate-blob" style="animation-delay: 2s;"></div>
+  <div class="fixed bottom-10 left-10 w-96 h-96 bg-brand-300/30 dark:bg-blue-900/20 rounded-full blur-3xl pointer-events-none animate-blob" style="animation-delay: 4s;"></div>
+
+  <!-- Header Component -->
+  <div class="relative z-10 max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto px-4 lg:px-8 pt-6 lg:pt-10 flex justify-between items-center glass-header rounded-3xl mt-4">
+    <div class="flex items-center gap-4 lg:gap-6 p-2">
+      <div class="h-14 w-14 md:h-16 md:w-16 lg:h-20 lg:w-20 flex-shrink-0 flex items-center justify-center bg-white dark:bg-gray-800 rounded-2xl lg:rounded-3xl ring-2 ring-brand-200/50 dark:ring-gray-700 p-2 shadow-lg shadow-brand-500/10 hover:scale-105 transition-transform duration-300">
+        <img id="logoImg" src="data:image/png;base64,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" alt="Mitr Phol Logo" class="w-full h-full object-contain">
+      </div>
+      <div>
+        <h1 class="text-xl md:text-2xl lg:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-700 via-brand-500 to-blue-800 dark:from-brand-300 dark:to-blue-300 tracking-tight" id="pageTitle">แบบฟอร์มขอฝึกงาน</h1>
+        <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 font-medium" id="pageSubtitle">Mitr Phol Group · Internship Application</p>
+      </div>
+    </div>
+    
+    <!-- Header Right Buttons: Toggle View & Dark Mode -->
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <!-- ปุ่มเปลี่ยนมุมมอง สำหรับบริษัท / นักศึกษา -->
+      <button id="viewSwitchBtn" type="button" onclick="openCompanyLogin()" class="px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-brand-600 to-blue-800 text-white hover:from-brand-700 hover:to-blue-900 transition-all duration-300 shadow-md font-semibold text-xs sm:text-sm flex items-center gap-2 hover:scale-105 active:scale-95">
+        <i class="fa-solid fa-building-user text-base" id="viewSwitchIcon"></i>
+        <span id="viewSwitchText">สำหรับบริษัท</span>
+      </button>
+
+      <!-- Dark Mode Toggle Button -->
+      <button id="themeToggle" type="button" class="relative p-3 rounded-2xl bg-white/55 dark:bg-slate-900/55 backdrop-blur-xl text-gray-600 dark:text-amber-400 hover:scale-110 active:scale-95 transition-all duration-300 shadow-md border border-gray-200/60 dark:border-gray-700">
+        <i class="fa-solid fa-moon dark:hidden text-lg"></i>
+        <i class="fa-solid fa-sun hidden dark:inline text-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- VIEW 1: STUDENT FORM SECTION -->
+  <div id="studentView" class="relative z-10 max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto mt-6 lg:mt-8 px-4 lg:px-8">
+    <form id="appForm" onsubmit="event.preventDefault();" class="space-y-6 lg:space-y-8">
+      
+      <!-- หมวดที่ 1 -->
+      <div class="form-card bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl shadow-xl p-6 sm:p-8 lg:p-10 border border-brand-100/50 dark:border-gray-700/60 space-y-6">
+        <div class="border-b pb-4 border-gray-100 dark:border-gray-700/60 flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-brand-700 text-white shadow-md shadow-brand-500/30 flex items-center justify-center font-bold text-lg">1</div>
+          <div>
+            <h2 class="text-lg lg:text-xl font-bold text-brand-700 dark:text-brand-300">ข้อมูลส่วนตัวและการติดต่อ</h2>
+            <p class="text-xs text-gray-400 font-normal">Personal details & contact information</p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm lg:text-base font-semibold mb-2">🏢 1. สถานที่สมัคร <span class="text-red-500">*</span></label>
+          <select id="location" class="w-full p-3.5 lg:p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-100 outline-none" onchange="validateAllFields();">
+            <option value="" disabled selected>กรุณาเลือกสถานที่สมัคร</option>
+            <option value="โรงงานน้ำตาลมิตรภูเวียง">โรงงานน้ำตาลมิตรภูเวียง</option>
+            <option value="โรงงานน้ำตาลมิตรภูหลวง">โรงงานน้ำตาลมิตรภูหลวง</option>
+          </select>
+          <p id="err-location" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรุณาเลือกสถานที่สมัคร</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div class="md:col-span-2">
+            <label class="block text-sm lg:text-base font-semibold mb-2">🧑 2. ชื่อ-สกุล <span class="text-red-500">*</span></label>
+            <input type="text" id="fullName" class="w-full p-3.5 lg:p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 outline-none" placeholder="นาย/นางสาว..." oninput="validateAllFields();">
+            <p id="err-fullName" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรุณากรอกชื่อ-นามสกุล</p>
+          </div>
+          <div>
+            <label class="block text-sm lg:text-base font-semibold mb-2">😊 3. ชื่อเล่น</label>
+            <input type="text" id="nickName" class="w-full p-3.5 lg:p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 outline-none" placeholder="ชื่อเล่น">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-sm lg:text-base font-semibold mb-2">📱 4. เบอร์โทรศัพท์ <span class="text-red-500">*</span></label>
+            <input type="tel" id="phone" class="w-full p-3.5 lg:p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 outline-none" placeholder="08XXXXXXXX" oninput="validateAllFields();">
+            <p id="err-phone" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรอกเบอร์โทรศัพท์ 9-10 หลัก</p>
+          </div>
+          <div>
+            <label class="block text-sm lg:text-base font-semibold mb-2">💬 5. Line ID</label>
+            <input type="text" id="lineId" class="w-full p-3.5 lg:p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 outline-none" placeholder="Line ID">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-sm lg:text-base font-semibold mb-2">✉️ 6. E-mail : ตอบกลับนักศึกษา <span class="text-red-500">*</span></label>
+            <input type="email" id="emailStudent" class="w-full p-3.5 lg:p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 outline-none" placeholder="student@example.com" oninput="validateAllFields();">
+            <p id="err-emailStudent" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรุณากรอกอีเมลที่ถูกต้อง</p>
+          </div>
+          <div>
+            <label class="block text-sm lg:text-base font-semibold mb-2">🏫 7. E-mail : ตอบกลับสถาบัน <span class="text-red-500">*</span></label>
+            <input type="email" id="emailInst" class="w-full p-3.5 lg:p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 outline-none" placeholder="univ@example.com" oninput="validateAllFields();">
+            <p id="err-emailInst" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรุณากรอกอีเมลสถาบันที่ถูกต้อง</p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm lg:text-base font-semibold mb-2">🏠 8. ที่อยู่ตามทะเบียนบ้าน <span class="text-red-500">*</span></label>
+          <textarea id="address" rows="2" class="w-full p-3.5 lg:p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 outline-none resize-none" placeholder="ระบุที่อยู่..." oninput="validateAllFields();"></textarea>
+          <p id="err-address" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรุณากรอกที่อยู่</p>
+        </div>
+      </div>
+
+      <!-- หมวดที่ 2 -->
+      <div class="form-card bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl shadow-xl p-6 sm:p-8 lg:p-10 border border-brand-100/50 dark:border-gray-700/60 space-y-6">
+        <div class="border-b pb-4 border-gray-100 dark:border-gray-700/60 flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-brand-700 text-white shadow-md shadow-brand-500/30 flex items-center justify-center font-bold text-lg">2</div>
+          <div>
+            <h2 class="text-lg lg:text-xl font-bold text-brand-700 dark:text-brand-300">การศึกษา และ ช่วงเวลาฝึกงาน</h2>
+            <p class="text-xs text-gray-400 font-normal">Education & Internship period</p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm lg:text-base font-semibold mb-3">🎓 9. วุฒิการศึกษา <span class="text-red-500">*</span></label>
+          <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 text-sm font-medium">
+            <label class="flex items-center gap-2.5 cursor-pointer px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 hover:bg-brand-50/50 dark:hover:bg-gray-700 transition-all has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/30 has-[:checked]:ring-2 has-[:checked]:ring-brand-500/20">
+              <input type="radio" name="degree" value="ปวช." class="w-4 h-4 text-brand-600 focus:ring-brand-500" onchange="toggleDegreeOther(); validateAllFields();"> ปวช.
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 hover:bg-brand-50/50 dark:hover:bg-gray-700 transition-all has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/30 has-[:checked]:ring-2 has-[:checked]:ring-brand-500/20">
+              <input type="radio" name="degree" value="ปวส." class="w-4 h-4 text-brand-600 focus:ring-brand-500" onchange="toggleDegreeOther(); validateAllFields();"> ปวส.
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 hover:bg-brand-50/50 dark:hover:bg-gray-700 transition-all has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/30 has-[:checked]:ring-2 has-[:checked]:ring-brand-500/20">
+              <input type="radio" name="degree" value="ปริญญาตรี" class="w-4 h-4 text-brand-600 focus:ring-brand-500" onchange="toggleDegreeOther(); validateAllFields();"> ปริญญาตรี
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 hover:bg-brand-50/50 dark:hover:bg-gray-700 transition-all has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/30 has-[:checked]:ring-2 has-[:checked]:ring-brand-500/20">
+              <input type="radio" name="degree" value="ปริญญาโท" class="w-4 h-4 text-brand-600 focus:ring-brand-500" onchange="toggleDegreeOther(); validateAllFields();"> ปริญญาโท
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 hover:bg-brand-50/50 dark:hover:bg-gray-700 transition-all has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/30 has-[:checked]:ring-2 has-[:checked]:ring-brand-500/20">
+              <input type="radio" name="degree" value="อื่นๆ" id="degreeOtherRadio" class="w-4 h-4 text-brand-600 focus:ring-brand-500" onchange="toggleDegreeOther(); validateAllFields();"> อื่นๆ ระบุ
+            </label>
+          </div>
+          <div id="degreeOtherContainer" class="mt-3 hidden animate-fade-in">
+            <input type="text" id="degreeOtherText" class="w-full md:w-1/2 p-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 outline-none" placeholder="ระบุวุฒิการศึกษาอื่นๆ..." oninput="validateAllFields();">
+          </div>
+          <p id="err-degree" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรุณาเลือกและระบุวุฒิการศึกษา</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-sm font-semibold mb-2">🏫 10. สถาบันการศึกษา <span class="text-red-500">*</span></label>
+            <input type="text" id="institution" class="w-full p-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 outline-none" oninput="validateAllFields();">
+            <p id="err-institution" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรุณากรอกชื่อสถาบัน</p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">📚 11. สาขา <span class="text-red-500">*</span></label>
+            <input type="text" id="major" class="w-full p-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 outline-none" oninput="validateAllFields();">
+            <p id="err-major" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรุณากรอกสาขาวิชา</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-sm font-semibold mb-2">📅 12. วันเริ่มต้นขอฝึกงาน <span class="text-red-500">*</span></label>
+            <input type="date" id="startDate" class="w-full p-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 outline-none" onchange="validateAllFields();">
+            <p id="err-startDate" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรุณาระบุวันเริ่มฝึกงาน</p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">📅 13. วันสิ้นสุดขอฝึกงาน <span class="text-red-500">*</span></label>
+            <input type="date" id="endDate" class="w-full p-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 outline-none" onchange="validateAllFields();">
+            <p id="err-endDate" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>วันสิ้นสุดต้องมากกว่าวันเริ่มต้น</p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold mb-3">🏭 14. ต้องการฝึกงานกับหน่วยงาน <span class="text-red-500">*</span></label>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm font-medium">
+            <label class="flex items-center gap-3 cursor-pointer p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 hover:bg-brand-50/50 dark:hover:bg-gray-700 transition-all has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/30 has-[:checked]:ring-2 has-[:checked]:ring-brand-500/20">
+              <input type="radio" name="workUnit" value="ด้านโรงงาน" class="w-4 h-4 text-brand-600 focus:ring-brand-500" onchange="validateAllFields();"> ด้านโรงงาน
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 hover:bg-brand-50/50 dark:hover:bg-gray-700 transition-all has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/30 has-[:checked]:ring-2 has-[:checked]:ring-brand-500/20">
+              <input type="radio" name="workUnit" value="ด้านอ้อย" class="w-4 h-4 text-brand-600 focus:ring-brand-500" onchange="validateAllFields();"> ด้านอ้อย
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 hover:bg-brand-50/50 dark:hover:bg-gray-700 transition-all has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-900/30 has-[:checked]:ring-2 has-[:checked]:ring-brand-500/20">
+              <input type="radio" name="workUnit" value="ด้านโลจิสติกส์" class="w-4 h-4 text-brand-600 focus:ring-brand-500" onchange="validateAllFields();"> ด้านโลจิสติกส์
+            </label>
+          </div>
+          <p id="err-workUnit" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรุณาเลือกหน่วยงาน</p>
+        </div>
+      </div>
+
+      <!-- หมวดที่ 3 -->
+      <div class="form-card bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl shadow-xl p-6 sm:p-8 lg:p-10 border border-brand-100/50 dark:border-gray-700/60 space-y-6">
+        <div class="border-b pb-4 border-gray-100 dark:border-gray-700/60 flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-brand-700 text-white shadow-md shadow-brand-500/30 flex items-center justify-center font-bold text-lg">3</div>
+          <div>
+            <h2 class="text-lg lg:text-xl font-bold text-brand-700 dark:text-brand-300">ข้อมูลเพิ่มเติม และ เอกสารแนบ</h2>
+            <p class="text-xs text-gray-400 font-normal">Skills, contact & document attachments</p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">✨ 15. ความสามารถพิเศษ <span class="text-red-500">*</span></label>
+          <input type="text" id="skills" class="w-full p-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 outline-none" placeholder="โปรแกรมมิ่ง, ภาษาต่างประเทศ, อื่นๆ" oninput="validateAllFields();">
+          <p id="err-skills" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรุณากรอกความสามารถพิเศษ</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-sm font-semibold mb-2">🆘 16. ชื่อ-สกุล ติดต่อฉุกเฉิน <span class="text-red-500">*</span></label>
+            <input type="text" id="emergencyName" class="w-full p-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 outline-none" oninput="validateAllFields();">
+            <p id="err-emergencyName" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรุณากรอกผู้ติดต่อฉุกเฉิน</p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">📞 17. เบอร์โทร ติดต่อฉุกเฉิน <span class="text-red-500">*</span></label>
+            <input type="tel" id="emergencyPhone" class="w-full p-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 outline-none" oninput="validateAllFields();">
+            <p id="err-emergencyPhone" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรุณากรอกเบอร์โทรฉุกเฉิน</p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">📎 18. เอกสารแนบประกอบการขอฝึกงาน</label>
+          <div class="space-y-3 mt-3">
+            <script>
+              const fileList = [
+                {id: 'Resume', name: 'Resume / CV', req: true},
+                {id: 'Transcript', name: 'Transcript', req: true},
+                {id: 'IDCard', name: 'สำเนาบัตรประชาชน', req: true},
+                {id: 'RequestLetter', name: 'หนังสือขอความอนุเคราะห์', req: false},
+                {id: 'Other', name: 'เอกสารอื่นๆ', req: false}
+              ];
+              fileList.forEach(f => {
+                document.write(`
+                  <div class="p-4 bg-gray-50/80 dark:bg-gray-700/40 border border-gray-200/80 dark:border-gray-700 rounded-2xl flex items-center justify-between transition-all hover:border-brand-300">
+                    <div class="flex items-center gap-3">
+                      <div class="p-2.5 bg-brand-50 dark:bg-gray-600 rounded-xl text-brand-600 dark:text-brand-300">
+                        <i class="fa-solid fa-file-lines text-lg"></i>
+                      </div>
+                      <div>
+                        <h4 class="font-semibold text-sm sm:text-base">${f.name} ${f.req ? '<span class="text-red-500">*</span>' : ''}</h4>
+                        <p id="fileName-${f.id}" class="text-xs text-gray-400 mt-0.5">ยังไม่ได้เลือกไฟล์</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <input type="file" id="fileInput-${f.id}" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" class="hidden" onchange="handleSingleFileUpload('${f.id}', this)">
+                      <button type="button" onclick="document.getElementById('fileInput-${f.id}').click()" class="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-xs sm:text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition shadow-sm hover:scale-105 active:scale-95">
+                        <i class="fa-solid fa-cloud-arrow-up mr-1 text-brand-500"></i> อัปโหลด
+                      </button>
+                      <button type="button" id="delBtn-${f.id}" onclick="removeSingleFile('${f.id}')" class="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition hidden">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    </div>
+                  </div>
+                  ${f.req ? `<p id="err-file-${f.id}" class="text-xs text-red-500 mt-1 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรุณาแนบไฟล์ ${f.name}</p>` : ''}
+                `);
+              });
+            </script>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">🖼️ 19. รูป Profile (ภาพถ่ายนักศึกษา) <span class="text-red-500">*</span></label>
+          <div class="flex items-center gap-5 p-4 bg-gray-50/80 dark:bg-gray-700/40 border border-gray-200/80 dark:border-gray-700 rounded-2xl">
+            <div class="relative w-20 h-20 rounded-2xl overflow-hidden bg-white dark:bg-gray-700 border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center flex-shrink-0 shadow-inner">
+              <i id="profilePlaceholderIcon" class="fa-solid fa-user-astronaut text-3xl text-gray-300 dark:text-gray-500"></i>
+              <img id="profilePreviewImg" class="w-full h-full object-cover hidden">
+            </div>
+            <div class="space-y-2">
+              <input type="file" id="fileInput-Profile" accept="image/*" class="hidden" onchange="handleProfileUpload(this)">
+              <button type="button" onclick="document.getElementById('fileInput-Profile').click()" class="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-xs sm:text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition shadow-sm hover:scale-105 active:scale-95">
+                <i class="fa-solid fa-camera mr-1 text-brand-500"></i> ถ่ายรูป / เลือกรูปภาพ
+              </button>
+              <button type="button" id="delBtn-Profile" onclick="removeProfileImage()" class="px-3 py-1.5 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition hidden block">
+                <i class="fa-solid fa-trash-can mr-1"></i> ลบรูปภาพ
+              </button>
+            </div>
+          </div>
+          <p id="err-file-Profile" class="text-xs text-red-500 mt-1.5 hidden animate-fade-in"><i class="fa-solid fa-circle-exclamation mr-1"></i>กรุณาแนบรูปโปรไฟล์</p>
+        </div>
+      </div>
+
+      <!-- Submit Action Area -->
+      <div class="flex justify-end pt-2 pb-6">
+        <button type="button" onclick="openPreviewModal()" class="w-full md:w-auto bg-gradient-to-r from-brand-500 via-brand-600 to-blue-800 hover:from-brand-600 hover:to-blue-900 text-white px-10 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-brand-500/25 hover:shadow-2xl hover:shadow-brand-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-3">
+          <span>ตรวจสอบ & ส่งข้อมูล</span>
+          <i class="fa-solid fa-paper-plane text-base"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- PREVIEW MODAL (STUDENT) -->
+  <div id="previewModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-white/20 transform scale-95 transition-transform duration-300 modal-card">
+      <div class="p-6 bg-gradient-to-r from-brand-600 to-blue-800 text-white flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <i class="fa-solid fa-magnifying-glass text-xl"></i>
+          <h3 class="font-bold text-lg lg:text-xl">ตรวจสอบข้อมูลก่อนยืนยัน</h3>
+        </div>
+        <button onclick="closePreviewModal()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div id="previewContent" class="p-6 overflow-y-auto space-y-3 text-sm lg:text-base divide-y dark:divide-gray-700/60"></div>
+      <div class="p-5 border-t dark:border-gray-700/60 flex justify-end gap-3 bg-gray-50/50 dark:bg-gray-800/50">
+        <button onclick="closePreviewModal()" class="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-2xl font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 transition">กลับไปแก้ไข</button>
+        <button id="submitBtn" onclick="submitData()" class="bg-gradient-to-r from-brand-500 to-brand-700 text-white px-8 py-3 shadow-lg shadow-brand-500/30 rounded-2xl font-bold flex items-center hover:scale-105 active:scale-95 transition">
+          <span id="submitText">ยืนยันส่งข้อมูล</span>
+          <i id="submitSpinner" class="fa-solid fa-spinner fa-spin ml-2 hidden"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS MODAL (STUDENT) -->
+  <div id="successModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 text-center shadow-2xl max-w-sm w-full transform scale-90 transition-transform duration-300 modal-card border border-white/10">
+      <div class="w-20 h-20 mx-auto mb-4 relative flex items-center justify-center">
+        <svg class="w-full h-full" viewBox="0 0 52 52">
+          <circle class="checkmark-circle" cx="26" cy="26" r="23"/>
+          <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+      </div>
+      <h3 class="text-2xl font-extrabold mb-2 text-brand-700 dark:text-brand-300">ส่งข้อมูลสำเร็จ!</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400">ระบบได้ทำการบันทึกข้อมูลขอฝึกงานของคุณเรียบร้อยแล้ว</p>
+    </div>
+  </div>
+
+  <!-- COMPANY LOGIN MODAL -->
+  <div id="companyLoginModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="modal-card bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-white/20 transform scale-95 transition-transform duration-300">
+      <div class="p-6 bg-gradient-to-r from-brand-600 to-blue-800 text-white">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-white/15 flex items-center justify-center">
+              <i class="fa-solid fa-building-shield text-xl"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-xl">เข้าสู่ระบบสำหรับบริษัท</h3>
+              <p class="text-xs text-white/75">Company / Staff Login</p>
+            </div>
+          </div>
+          <button type="button" onclick="closeCompanyLogin()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="px-6 pt-5">
+        <div class="grid grid-cols-2 gap-4 p-2 bg-slate-100/80 dark:bg-slate-800/80 rounded-3xl border border-blue-100 dark:border-slate-700">
+          <button id="loginModeUser" type="button" onclick="setCompanyLoginMode('user')" class="py-4 px-4 rounded-2xl text-sm font-bold transition-all bg-gradient-to-r from-brand-600 to-blue-800 text-white shadow-md">
+            <i class="fa-solid fa-user-tie mr-2"></i>USER<br><span class="text-[10px] font-normal opacity-80">ผู้ใช้งานทั่วไป</span>
+          </button>
+          <button id="loginModeAdmin" type="button" onclick="setCompanyLoginMode('admin')" class="py-4 px-4 rounded-2xl text-sm font-bold transition-all text-gray-500 dark:text-gray-300 hover:bg-white/70 dark:hover:bg-slate-700">
+            <i class="fa-solid fa-user-shield mr-2"></i>ADMIN<br><span class="text-[10px] font-normal opacity-80">ผู้ดูแลระบบ</span>
+          </button>
+        </div>
+        <p id="loginModeHint" class="text-[11px] text-gray-400 mt-2 text-center">เข้าสู่ระบบสำหรับผู้ใช้งานทั่วไป</p>
+      </div>
+
+      <form id="companyLoginForm" class="p-6 space-y-5" onsubmit="event.preventDefault(); submitCompanyLogin();">
+        <div>
+          <label class="block text-sm font-semibold mb-2">
+            <i class="fa-solid fa-user mr-2 text-brand-600"></i>Username
+          </label>
+          <input id="companyUsername" type="text" autocomplete="username"
+                 class="w-full p-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 outline-none"
+                 placeholder="กรอก Username หรือ Email พนักงาน">
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">
+            <i class="fa-solid fa-lock mr-2 text-brand-600"></i>Password
+          </label>
+          <div class="relative">
+            <input id="companyPassword" type="password" autocomplete="current-password"
+                   class="w-full p-3.5 pr-12 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 outline-none"
+                   placeholder="กรอก Password">
+            <button type="button" onclick="toggleCompanyPassword()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-600">
+              <i id="companyPasswordIcon" class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="companyLoginError" class="hidden text-sm text-red-500 bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/50 rounded-2xl p-3">
+          <i class="fa-solid fa-circle-exclamation mr-2"></i>
+          Username หรือ Password ไม่ถูกต้อง
+        </div>
+
+        <button id="companyLoginBtn" type="submit"
+                class="w-full bg-gradient-to-r from-brand-600 to-blue-800 hover:from-brand-700 hover:to-blue-900 text-white py-3.5 rounded-2xl font-bold shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0">
+          <span id="companyLoginText"><i class="fa-solid fa-right-to-bracket mr-2"></i>เข้าสู่ระบบ</span>
+          <span id="companyLoginLoading" class="hidden"><i class="fa-solid fa-spinner fa-spin mr-2"></i>กำลังตรวจสอบ...</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let uploadedFilesMap = {};
+    let profileImageData = null;
+    let companyAuthenticated = false;
+    let companyUser = null;
+    let companyLoginMode = 'user';
+    let hasAttemptedSubmit = false;
+
+    document.getElementById('themeToggle').addEventListener('click', () => document.documentElement.classList.toggle('dark'));
+
+    function setCompanyLoginMode(mode) {
+      companyLoginMode = mode === 'admin' ? 'admin' : 'user';
+      const userBtn = document.getElementById('loginModeUser');
+      const adminBtn = document.getElementById('loginModeAdmin');
+      const hint = document.getElementById('loginModeHint');
+      const active = ['bg-gradient-to-r','from-brand-600','to-blue-800','text-white','shadow-md'];
+      const inactive = ['text-gray-500','dark:text-gray-300'];
+      userBtn.classList.remove(...active, ...inactive);
+      adminBtn.classList.remove(...active, ...inactive);
+      if (companyLoginMode === 'admin') {
+        adminBtn.classList.add(...active); userBtn.classList.add(...inactive);
+        hint.innerHTML = '<i class="fa-solid fa-shield-halved mr-1"></i>เฉพาะ Role Admin ในฐานข้อมูล';
+        document.getElementById('companyLoginText').innerHTML = '<i class="fa-solid fa-user-shield mr-2"></i>เข้าสู่ระบบ ADMIN';
+      } else {
+        userBtn.classList.add(...active); adminBtn.classList.add(...inactive);
+        hint.innerText = 'เข้าสู่ระบบสำหรับผู้ใช้งานทั่วไป';
+        document.getElementById('companyLoginText').innerHTML = '<i class="fa-solid fa-right-to-bracket mr-2"></i>เข้าสู่ระบบ USER';
+      }
+      document.getElementById('companyLoginError').classList.add('hidden');
+    }
+
+    function openCompanyLogin() {
+      setCompanyLoginMode('user');
+      const modal = document.getElementById('companyLoginModal');
+      document.getElementById('companyLoginError').classList.add('hidden');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.querySelector('.modal-card').classList.remove('scale-95');
+      modal.querySelector('.modal-card').classList.add('scale-100');
+      setTimeout(() => document.getElementById('companyUsername').focus(), 150);
+    }
+
+    function closeCompanyLogin() {
+      const modal = document.getElementById('companyLoginModal');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      modal.querySelector('.modal-card').classList.add('scale-95');
+      modal.querySelector('.modal-card').classList.remove('scale-100');
+      document.getElementById('companyPassword').value = '';
+      document.getElementById('companyLoginError').classList.add('hidden');
+    }
+
+    function toggleCompanyPassword() {
+      const input = document.getElementById('companyPassword');
+      const icon = document.getElementById('companyPasswordIcon');
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      icon.className = show ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+    }
+
+    function submitCompanyLogin() {
+      const username = document.getElementById('companyUsername').value.trim();
+      const password = document.getElementById('companyPassword').value;
+      const errorBox = document.getElementById('companyLoginError');
+      const btn = document.getElementById('companyLoginBtn');
+
+      errorBox.classList.add('hidden');
+
+      if (!username) {
+        errorBox.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-2"></i>กรุณากรอก Username';
+        errorBox.classList.remove('hidden');
+        return;
+      }
+
+      btn.disabled = true;
+      document.getElementById('companyLoginText').classList.add('hidden');
+      document.getElementById('companyLoginLoading').classList.remove('hidden');
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          btn.disabled = false;
+          document.getElementById('companyLoginText').classList.remove('hidden');
+          document.getElementById('companyLoginLoading').classList.add('hidden');
+
+          if (result && result.success) {
+            companyAuthenticated = true;
+            companyUser = result.user;
+
+            // ตรวจสอบ Role กรณีเลือก ADMIN
+            if (companyLoginMode === 'admin' && String(result.user.role || '').toLowerCase() !== 'admin') {
+              errorBox.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-2"></i>บัญชีนี้ไม่มีสิทธิ์เข้าใช้งานในระดับ Admin';
+              errorBox.classList.remove('hidden');
+              return;
+            }
+
+            // ADMIN แยกไปหน้า Admin.html ผ่าน Web App route ?page=admin
+            if (companyLoginMode === 'admin' && String(result.user.role || '').toLowerCase() === 'admin') {
+              sessionStorage.setItem('mitrpholAdminUser', JSON.stringify(result.user));
+              google.script.run
+                .withSuccessHandler(function(webAppUrl) {
+                  window.top.location.href = webAppUrl + '?page=admin';
+                })
+                .withFailureHandler(function() {
+                  window.location.search = '?page=admin';
+                })
+                .getWebAppUrl();
+              return;
+            }
+
+            // USER แยกไปหน้า User.html
+            sessionStorage.setItem('mitrpholCompanyUser', JSON.stringify(result.user));
+            google.script.run
+              .withSuccessHandler(function(webAppUrl) {
+                window.top.location.href = webAppUrl + '?page=user';
+              })
+              .withFailureHandler(function() {
+                window.location.search = '?page=user';
+              })
+              .getWebAppUrl();
+          } else {
+            errorBox.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-2"></i>' + ((result && result.message) ? result.message : 'Username หรือ Password ไม่ถูกต้อง');
+            errorBox.classList.remove('hidden');
+            document.getElementById('companyPassword').value = '';
+            document.getElementById('companyPassword').focus();
+          }
+        })
+        .withFailureHandler(function(error) {
+          btn.disabled = false;
+          document.getElementById('companyLoginText').classList.remove('hidden');
+          document.getElementById('companyLoginLoading').classList.add('hidden');
+          errorBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-2"></i>ไม่สามารถตรวจสอบการเข้าสู่ระบบได้: ' + (error.message || error);
+          errorBox.classList.remove('hidden');
+        })
+        .checkCompanyLogin(username, password);
+    }
+
+    function validateAllFields() {
+      let isValid = true;
+      const toggleErr = (id, condition) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('hidden', !(hasAttemptedSubmit && condition));
+        if (condition) isValid = false;
+      };
+
+      toggleErr('err-location', !document.getElementById('location').value);
+      toggleErr('err-fullName', !document.getElementById('fullName').value.trim());
+      toggleErr('err-phone', !/^[0-9]{9,10}$/.test(document.getElementById('phone').value.trim()));
+      toggleErr('err-emailStudent', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById('emailStudent').value.trim()));
+      toggleErr('err-emailInst', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById('emailInst').value.trim()));
+      toggleErr('err-address', !document.getElementById('address').value.trim());
+
+      const degOption = document.querySelector('input[name="degree"]:checked');
+      toggleErr('err-degree', !degOption || (degOption.value === 'อื่นๆ' && !document.getElementById('degreeOtherText').value.trim()));
+      toggleErr('err-institution', !document.getElementById('institution').value.trim());
+      toggleErr('err-major', !document.getElementById('major').value.trim());
+      toggleErr('err-workUnit', !document.querySelector('input[name="workUnit"]:checked'));
+
+      const s = document.getElementById('startDate').value, e = document.getElementById('endDate').value;
+      toggleErr('err-startDate', !s);
+      toggleErr('err-endDate', !e || (s && e && s >= e));
+
+      toggleErr('err-skills', !document.getElementById('skills').value.trim());
+      toggleErr('err-emergencyName', !document.getElementById('emergencyName').value.trim());
+      toggleErr('err-emergencyPhone', !document.getElementById('emergencyPhone').value.trim());
+
+      ['Resume', 'Transcript', 'IDCard'].forEach(k => toggleErr(`err-file-${k}`, !uploadedFilesMap[k]));
+      toggleErr('err-file-Profile', !profileImageData);
+      return isValid;
+    }
+
+    function toggleDegreeOther() {
+      document.getElementById('degreeOtherContainer').classList.toggle('hidden', !document.getElementById('degreeOtherRadio').checked);
+    }
+
+    function handleSingleFileUpload(key, input) {
+      if (!input.files[0]) return;
+      const r = new FileReader();
+      r.onload = e => {
+        uploadedFilesMap[key] = { name: input.files[0].name, base64: e.target.result };
+        document.getElementById(`fileName-${key}`).innerText = input.files[0].name;
+        document.getElementById(`fileName-${key}`).classList.add('text-brand-600', 'font-medium');
+        document.getElementById(`delBtn-${key}`).classList.remove('hidden');
+        validateAllFields();
+      };
+      r.readAsDataURL(input.files[0]);
+    }
+
+    function removeSingleFile(key) {
+      delete uploadedFilesMap[key];
+      document.getElementById(`fileInput-${key}`).value = '';
+      document.getElementById(`fileName-${key}`).innerText = 'ยังไม่ได้เลือกไฟล์';
+      document.getElementById(`fileName-${key}`).classList.remove('text-brand-600', 'font-medium');
+      document.getElementById(`delBtn-${key}`).classList.add('hidden');
+      validateAllFields();
+    }
+
+    function handleProfileUpload(input) {
+      if (!input.files[0]) return;
+      const r = new FileReader();
+      r.onload = e => {
+        profileImageData = { name: input.files[0].name, base64: e.target.result };
+        document.getElementById('profilePreviewImg').src = e.target.result;
+        document.getElementById('profilePreviewImg').classList.remove('hidden');
+        document.getElementById('profilePlaceholderIcon').classList.add('hidden');
+        document.getElementById('delBtn-Profile').classList.remove('hidden');
+        validateAllFields();
+      };
+      r.readAsDataURL(input.files[0]);
+    }
+
+    function removeProfileImage() {
+      profileImageData = null;
+      document.getElementById('fileInput-Profile').value = '';
+      document.getElementById('profilePreviewImg').classList.add('hidden');
+      document.getElementById('profilePlaceholderIcon').classList.remove('hidden');
+      document.getElementById('delBtn-Profile').classList.add('hidden');
+      validateAllFields();
+    }
+
+    function openPreviewModal() {
+      hasAttemptedSubmit = true;
+      if (!validateAllFields()) { alert("กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน"); return; }
+      
+      const degOption = document.querySelector('input[name="degree"]:checked');
+      const finalDegree = degOption ? (degOption.value === 'อื่นๆ' ? `อื่นๆ (${document.getElementById('degreeOtherText').value.trim()})` : degOption.value) : '-';
+
+      let fileNames = Object.keys(uploadedFilesMap).length > 0
+        ? Object.values(uploadedFilesMap).map(f => `• ${f.name}`).join('<br>')
+        : 'ไม่มีไฟล์แนบ';
+
+      const fields = [
+        { l: "1. สถานที่สมัคร", v: document.getElementById('location').value },
+        { l: "2. ชื่อ-สกุล", v: document.getElementById('fullName').value },
+        { l: "3. ชื่อเล่น", v: document.getElementById('nickName').value || '-' },
+        { l: "4. เบอร์โทรศัพท์", v: document.getElementById('phone').value },
+        { l: "5. Line ID", v: document.getElementById('lineId').value || '-' },
+        { l: "6. E-mail (นักศึกษา)", v: document.getElementById('emailStudent').value },
+        { l: "7. E-mail (สถาบัน)", v: document.getElementById('emailInst').value },
+        { l: "8. ที่อยู่ตามทะเบียนบ้าน", v: document.getElementById('address').value },
+        { l: "9. วุฒิการศึกษา", v: finalDegree },
+        { l: "10. สถาบันการศึกษา", v: document.getElementById('institution').value },
+        { l: "11. สาขา", v: document.getElementById('major').value },
+        { l: "12-13. ช่วงเวลาฝึกงาน", v: `${document.getElementById('startDate').value} ถึง ${document.getElementById('endDate').value}` },
+        { l: "14. หน่วยงานที่ต้องการ", v: document.querySelector('input[name="workUnit"]:checked')?.value || '-' },
+        { l: "15. ความสามารถพิเศษ", v: document.getElementById('skills').value },
+        { l: "16-17. ติดต่อฉุกเฉิน", v: `${document.getElementById('emergencyName').value} (${document.getElementById('emergencyPhone').value})` },
+        { l: "18. เอกสารแนบ", v: fileNames },
+        { l: "19. รูป Profile", v: profileImageData ? profileImageData.name : 'ไม่มีรูปภาพ' }
+      ];
+
+      let html = '';
+      fields.forEach(f => {
+        html += `<div class="py-3 flex justify-between items-start gap-4"><span class="text-gray-500 dark:text-gray-400 min-w-[130px] sm:min-w-[160px] text-sm">${f.l}:</span><span class="font-semibold text-right break-words text-sm sm:text-base">${f.v}</span></div>`;
+      });
+      
+      const modal = document.getElementById('previewModal');
+      document.getElementById('previewContent').innerHTML = html;
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.querySelector('.modal-card').classList.remove('scale-95');
+      modal.querySelector('.modal-card').classList.add('scale-100');
+    }
+
+    function closePreviewModal() { 
+      const modal = document.getElementById('previewModal');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      modal.querySelector('.modal-card').classList.remove('scale-100');
+      modal.querySelector('.modal-card').classList.add('scale-95');
+    }
+
+    function submitData() {
+      var submitBtn = document.getElementById('submitBtn');
+      var submitText = document.getElementById('submitText');
+      var submitSpinner = document.getElementById('submitSpinner');
+
+      submitBtn.disabled = true;
+      if (submitText) submitText.innerText = "กำลังส่งข้อมูล...";
+      if (submitSpinner) submitSpinner.classList.remove('hidden');
+
+      var deg = document.querySelector('input[name="degree"]:checked')?.value;
+      var data = {
+        location: document.getElementById('location').value,
+        fullName: document.getElementById('fullName').value.trim(),
+        nickName: document.getElementById('nickName').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        lineId: document.getElementById('lineId').value.trim(),
+        emailStudent: document.getElementById('emailStudent').value.trim(),
+        emailInst: document.getElementById('emailInst').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        degree: deg === 'อื่นๆ' ? `อื่นๆ (${document.getElementById('degreeOtherText').value.trim()})` : deg,
+        institution: document.getElementById('institution').value.trim(),
+        major: document.getElementById('major').value.trim(),
+        startDate: document.getElementById('startDate').value,
+        endDate: document.getElementById('endDate').value,
+        workUnit: document.querySelector('input[name="workUnit"]:checked')?.value || '',
+        skills: document.getElementById('skills').value.trim(),
+        emergencyName: document.getElementById('emergencyName').value.trim(),
+        emergencyPhone: document.getElementById('emergencyPhone').value.trim(),
+        filesMap: uploadedFilesMap,
+        profileImage: profileImageData
+      };
+
+      // Timeout 60 วินาที ป้องกันกรณีเน็ตหลุดหรืออัปโหลดนาน
+      var timeoutHandler = setTimeout(function() {
+        alert("การส่งข้อมูลใช้เวลานานเกินกำหนด กรุณาตรวจสอบขนาดไฟล์แนบแล้วลองใหม่อีกครั้ง");
+        resetSubmitButton();
+      }, 60000);
+
+      function resetSubmitButton() {
+        clearTimeout(timeoutHandler);
+        submitBtn.disabled = false;
+        if (submitText) submitText.innerText = "ยืนยันส่งข้อมูล";
+        if (submitSpinner) submitSpinner.classList.add('hidden');
+      }
+
+      const handleSuccess = (res) => {
+        clearTimeout(timeoutHandler);
+        closePreviewModal();
+
+        const successModal = document.getElementById('successModal');
+        if (successModal) {
+          successModal.classList.remove('opacity-0', 'pointer-events-none');
+          const card = successModal.querySelector('.modal-card');
+          if (card) {
+            card.classList.remove('scale-90');
+            card.classList.add('scale-100');
+          }
+        } else {
+          alert("ส่งข้อมูลสมัครฝึกงานเรียบร้อยแล้ว!");
+        }
+
+        // เคลียร์ค่าในฟอร์ม
+        const form = document.getElementById('appForm');
+        if (form) form.reset();
+        
+        uploadedFilesMap = {};
+        profileImageData = null;
+        ['Resume', 'Transcript', 'IDCard', 'RequestLetter', 'Other'].forEach(k => {
+          const fn = document.getElementById(`fileName-${k}`);
+          const db = document.getElementById(`delBtn-${k}`);
+          if (fn) fn.innerText = 'ยังไม่ได้เลือกไฟล์';
+          if (db) db.classList.add('hidden');
+        });
+        removeProfileImage();
+
+        resetSubmitButton();
+
+        setTimeout(() => {
+          if (successModal) {
+            successModal.classList.add('opacity-0', 'pointer-events-none');
+          }
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 3500);
+      };
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (res && res.success) {
+              handleSuccess(res);
+            } else {
+              resetSubmitButton();
+              alert("เกิดข้อผิดพลาด: " + ((res && res.message) ? res.message : 'ไม่สามารถบันทึกข้อมูลได้'));
+            }
+          })
+          .withFailureHandler((err) => {
+            resetSubmitButton();
+            alert("เกิดข้อผิดพลาดในการส่งข้อมูล: " + (err.message || err));
+          })
+          .processForm(data);
+      } else {
+        setTimeout(handleSuccess, 1000);
+      }
+    }
+  </script>
+</body>
+</html>

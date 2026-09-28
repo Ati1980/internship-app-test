@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="th" class="light">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Mitr Phol Internship</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { brand: {
+        50:'#eff7ff',100:'#dbeeff',200:'#b9ddff',300:'#82c4ff',
+        400:'#43a5ff',500:'#1685e6',600:'#0069c7',700:'#00529b',
+        800:'#064477',900:'#0b3962'
+      }}}}
+    }
+  </script>
+  <style>
+    .hidden { display: none !important; }
+    body {
+      font-family: 'Kanit', Arial, sans-serif;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(22,133,230,.20), transparent 30%),
+        radial-gradient(circle at 85% 15%, rgba(0,82,155,.16), transparent 28%),
+        linear-gradient(135deg,#eef7ff 0%,#f8fbff 48%,#e7f2ff 100%);
+      min-height:100vh;
+    }
+    .glass {
+      background:rgba(255,255,255,.78);
+      border:1px solid rgba(255,255,255,.8);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      box-shadow:0 18px 50px -20px rgba(0,82,155,.2);
+    }
+    .card-active {
+      border: 2px solid #1685e6 !important;
+      background: rgba(22, 133, 230, 0.08) !important;
+    }
+  </style>
+</head>
+<body class="text-slate-800 pb-16">
+  <div id="adminApp" class="hidden max-w-7xl mx-auto p-4 md:p-8">
+    
+    <!-- Header -->
+    <header class="glass rounded-3xl p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-800 text-white flex items-center justify-center shadow-lg">
+          <i class="fa-solid fa-user-shield text-2xl"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl md:text-3xl font-black text-brand-700">Admin Dashboard</h1>
+            <span class="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">ADMIN</span>
+          </div>
+          <p class="text-sm text-slate-500">Mitr Phol Group · Internship Management</p>
+        </div>
+      </div>
+      <button onclick="adminLogout()" class="px-4 py-2.5 rounded-2xl border border-red-200 text-red-500 hover:bg-red-50 font-bold transition flex items-center gap-2">
+        <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
+      </button>
+    </header>
+
+    <!-- Admin Profile Section -->
+    <section class="glass rounded-3xl p-5 mt-6 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow">
+        <i class="fa-solid fa-user-gear text-xl"></i>
+      </div>
+      <div>
+        <div class="text-xs text-slate-400">ผู้ดูแลระบบปัจจุบัน</div>
+        <div id="adminName" class="font-extrabold text-lg text-slate-800">-</div>
+        <div id="adminPosition" class="text-sm font-semibold text-brand-700">-</div>
+      </div>
+    </section>
+
+    <!-- Cards สรุปสถิติ -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+      <div id="cardAll" onclick="selectCardFilter('all')" class="glass rounded-3xl p-5 flex items-center gap-4 cursor-pointer hover:border-brand-300 transition card-active">
+        <div class="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-600 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-users"></i>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-slate-600">ผู้สมัครทั้งหมด (6 ด.)</p>
+          <h3 class="text-3xl font-black text-slate-800" id="totalAppsCount">0</h3>
+        </div>
+      </div>
+
+      <div id="cardPending" onclick="selectCardFilter('pending_approval')" class="glass rounded-3xl p-5 flex items-center gap-4 cursor-pointer hover:border-brand-300 transition">
+        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-slate-600">รอการพิจารณา</p>
+          <h3 class="text-3xl font-black text-amber-500" id="pendingAppsCount">0</h3>
+        </div>
+      </div>
+
+      <div id="cardReviewed" onclick="selectCardFilter('approved')" class="glass rounded-3xl p-5 flex items-center gap-4 cursor-pointer hover:border-brand-300 transition">
+        <div class="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-600 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-building-circle-check"></i>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-slate-600">พิจารณาแล้ว</p>
+          <h3 class="text-3xl font-black text-teal-600" id="reviewedAppsCount">0</h3>
+        </div>
+      </div>
+
+      <div id="cardHistory" onclick="toggleHistoryMode()" class="glass rounded-3xl p-5 flex items-center gap-4 cursor-pointer hover:border-brand-300 transition">
+        <div class="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-box-archive"></i>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-slate-600">ประวัติย้อนหลัง (>6 ด.)</p>
+          <h3 class="text-3xl font-black text-purple-600" id="historyAppsCount">0</h3>
+        </div>
+      </div>
+    </section>
+
+    <!-- Table Container & Filters -->
+    <section class="glass rounded-3xl p-6 lg:p-8 mt-6 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-5 border-slate-200">
+        <div>
+          <h2 class="text-xl font-black text-slate-800" id="tableTitle">รายการผู้สมัครทั้งหมด (ภายใน 6 เดือน)</h2>
+          <p class="text-xs text-slate-500">จัดการสิทธิ์การอนุมัติ แก้ไขผู้พิจารณา และยกเลิกสถานะการอนุมัติ (คลิกที่รายการเพื่อดูรายละเอียด)</p>
+        </div>
+        <button onclick="loadAdminData()" class="px-4 py-2 rounded-2xl bg-brand-50 text-brand-700 font-bold hover:bg-brand-100 transition flex items-center gap-2 text-sm">
+          <i class="fa-solid fa-rotate-right"></i> รีเฟรชข้อมูล
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-xs font-semibold mb-1 text-slate-500">ค้นหาชื่อ/สถาบัน/สาขา</label>
+          <input type="text" id="adminSearchInput" oninput="resetPageAndFilter()" placeholder="พิมพ์คำค้นหา..." class="w-full p-3 rounded-2xl border border-slate-200 bg-white/70 outline-none text-sm focus:ring-2 focus:ring-brand-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1 text-slate-500">สถานที่</label>
+          <select id="adminLocationFilter" onchange="resetPageAndFilter()" class="w-full p-3 rounded-2xl border border-slate-200 bg-white/70 outline-none text-sm focus:ring-2 focus:ring-brand-500">
+            <option value="">ทั้งหมด</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1 text-slate-500">หน่วยงานที่ขอฝึกงาน</label>
+          <select id="adminUnitFilter" onchange="resetPageAndFilter()" class="w-full p-3 rounded-2xl border border-slate-200 bg-white/70 outline-none text-sm focus:ring-2 focus:ring-brand-500">
+            <option value="">ทั้งหมด</option>
+            <option value="ด้านโรงงาน">ด้านโรงงาน</option>
+            <option value="ด้านอ้อย">ด้านอ้อย</option>
+            <option value="ด้านโลจิสติกส์">ด้านโลจิสติกส์</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1 text-slate-500">กรองการอนุมัติ</label>
+          <select id="adminApprovalFilter" onchange="syncCardWithSelect(); resetPageAndFilter();" class="w-full p-3 rounded-2xl border border-slate-200 bg-white/70 outline-none text-sm focus:ring-2 focus:ring-brand-500">
+            <option value="">ทั้งหมด</option>
+            <option value="approved">อนุมัติแล้ว</option>
+            <option value="pending_approval">รอการอนุมัติ</option>
+            <option value="unassigned">ยังไม่มีผู้รับเรื่อง</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Table Body -->
+      <div class="overflow-x-auto rounded-2xl border border-slate-200/80 bg-white/40">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-white/80 text-slate-700 font-bold border-b border-slate-200">
+            <tr>
+              <th class="p-4 text-center">รูป</th>
+              <th class="p-4">ผู้สมัคร</th>
+              <th class="p-4">สถานที่</th>
+              <th class="p-4">สถาบัน/สาขา</th>
+              <th class="p-4">หน่วยงานที่ขอ</th>
+              <th class="p-4">สถานะ</th>
+              <th class="p-4 text-center">ผู้พิจารณา</th>
+              <th class="p-4 text-center">การอนุมัติ / จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody" class="divide-y divide-slate-100">
+            <tr>
+              <td colspan="8" class="p-10 text-center text-slate-400">
+                <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
+                <p>กำลังโหลดข้อมูล...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+        <div class="text-xs text-slate-500" id="pageInfoText">แสดง 0 ถึง 0 จาก 0 รายการ</div>
+        <div class="flex items-center gap-2">
+          <button id="prevPageBtn" onclick="changePage(-1)" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed transition">
+            <i class="fa-solid fa-chevron-left mr-1"></i> ย้อนกลับ
+          </button>
+          <span class="text-xs font-bold px-3 py-1 bg-brand-50 text-brand-700 rounded-lg" id="currentPageNum">1</span>
+          <button id="nextPageBtn" onclick="changePage(1)" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed transition">
+            หน้าถัดไป <i class="fa-solid fa-chevron-right ml-1"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Denied Screen -->
+  <div id="denied" class="hidden min-h-screen flex items-center justify-center p-5">
+    <div class="glass rounded-3xl p-8 max-w-md w-full text-center">
+      <i class="fa-solid fa-shield-halved text-5xl text-red-500 mb-4"></i>
+      <h2 class="text-2xl font-black">ไม่มีสิทธิ์เข้าถึง Admin</h2>
+      <p class="text-slate-500 mt-2">กรุณาเข้าสู่ระบบด้วยบัญชีที่มี Role = Admin</p>
+      <button onclick="backToLogin()" class="mt-5 px-5 py-3 rounded-2xl bg-brand-600 text-white font-bold hover:bg-brand-700 transition">กลับหน้า Login</button>
+    </div>
+  </div>
+
+  <!-- Modal แสดงรายละเอียดผู้สมัคร -->
+  <div id="detailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+    <div class="glass max-w-2xl w-full rounded-3xl p-6 md:p-8 space-y-6 max-h-[90vh] overflow-y-auto bg-white">
+      <div class="flex items-center justify-between border-b pb-4 border-slate-200">
+        <h3 class="text-xl font-black text-brand-700"><i class="fa-solid fa-address-card mr-2"></i>รายละเอียดผู้สมัคร (Admin View)</h3>
+        <button onclick="closeDetailModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold">✕</button>
+      </div>
+      
+      <div id="modalContent" class="space-y-4 text-sm text-slate-700"></div>
+
+      <div class="text-right border-t pt-4 border-slate-200">
+        <button onclick="closeDetailModal()" class="px-5 py-2.5 rounded-2xl bg-slate-200 hover:bg-slate-300 font-bold text-slate-700 transition">ปิดหน้าต่าง</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  let adminUser = null;
+  let adminDataList = [];
+  let isHistoryMode = false;
+  let currentPage = 1;
+  const PAGE_SIZE = 20;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    try { adminUser = JSON.parse(sessionStorage.getItem('mitrpholAdminUser') || 'null'); } catch(e) {}
+    if (!adminUser || String(adminUser.role || '').toLowerCase() !== 'admin') {
+      document.getElementById('denied').classList.remove('hidden');
+      return;
+    }
+    document.getElementById('adminApp').classList.remove('hidden');
+    document.getElementById('adminName').innerText = adminUser.fullName || adminUser.username || '-';
+    document.getElementById('adminPosition').innerText = (adminUser.position || 'ผู้ดูแลระบบ') + ' · Admin';
+    loadAdminData();
+  });
+
+  function loadAdminData() {
+    const tbody = document.getElementById('adminTableBody');
+    tbody.innerHTML = `
+      <tr><td colspan="8" class="p-10 text-center text-slate-400">
+        <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
+        <p>กำลังโหลดข้อมูลล่าสุด...</p>
+      </td></tr>`;
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(renderAdminData)
+        .withFailureHandler(function(err) {
+          tbody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-red-500 font-bold">ไม่สามารถดึงข้อมูลได้: ' + ((err && err.message) ? err.message : err) + '</td></tr>';
+        })
+        .getApplicationsList(adminUser.username);
+    }
+  }
+
+  function renderAdminData(data) {
+    adminDataList = data || [];
+    populateLocationDropdown();
+    updateSummaryCards();
+    filterAdminTable();
+  }
+
+  function populateLocationDropdown() {
+    const locSelect = document.getElementById('adminLocationFilter');
+    const currentVal = locSelect.value;
+    const locations = Array.from(new Set(adminDataList.map(item => item.location).filter(Boolean))).sort();
+    
+    locSelect.innerHTML = '<option value="">ทั้งหมด</option>' + 
+      locations.map(loc => `<option value="${loc}">${loc}</option>`).join('');
+    locSelect.value = currentVal;
+  }
+
+  function isWithinSixMonths(dateString) {
+    if (!dateString) return true;
+    const appDate = new Date(dateString);
+    if (isNaN(appDate.getTime())) return true;
+
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    return appDate >= sixMonthsAgo;
+  }
+
+  function updateSummaryCards() {
+    const recentData = adminDataList.filter(x => isWithinSixMonths(x.timestamp));
+    const historyData = adminDataList.filter(x => !isWithinSixMonths(x.timestamp));
+
+    document.getElementById('totalAppsCount').innerText = recentData.length;
+    document.getElementById('pendingAppsCount').innerText = recentData.filter(x => (x.reviewStatus || 'unassigned') === 'pending').length;
+    document.getElementById('reviewedAppsCount').innerText = recentData.filter(x => x.reviewStatus === 'reviewed').length;
+    document.getElementById('historyAppsCount').innerText = historyData.length;
+  }
+
+  function selectCardFilter(type) {
+    if (isHistoryMode) {
+      isHistoryMode = false;
+      document.getElementById('cardHistory').classList.remove('card-active');
+      document.getElementById('tableTitle').innerText = 'รายการผู้สมัครทั้งหมด (ภายใน 6 เดือน)';
+    }
+
+    const approvalSelect = document.getElementById('adminApprovalFilter');
+    if (type === 'all') approvalSelect.value = '';
+    else if (type === 'pending_approval') approvalSelect.value = 'pending_approval';
+    else if (type === 'approved') approvalSelect.value = 'approved';
+
+    updateCardUI(type);
+    resetPageAndFilter();
+  }
+
+  function updateCardUI(type) {
+    ['cardAll', 'cardPending', 'cardReviewed', 'cardHistory'].forEach(id => {
+      document.getElementById(id).classList.remove('card-active');
+    });
+    if (type === 'all') document.getElementById('cardAll').classList.add('card-active');
+    else if (type === 'pending_approval') document.getElementById('cardPending').classList.add('card-active');
+    else if (type === 'approved') document.getElementById('cardReviewed').classList.add('card-active');
+    else if (type === 'history') document.getElementById('cardHistory').classList.add('card-active');
+  }
+
+  function syncCardWithSelect() {
+    const val = document.getElementById('adminApprovalFilter').value;
+    if (val === '') updateCardUI('all');
+    else if (val === 'pending_approval') updateCardUI('pending_approval');
+    else if (val === 'approved') updateCardUI('approved');
+    else updateCardUI('');
+  }
+
+  function toggleHistoryMode() {
+    isHistoryMode = !isHistoryMode;
+    const title = document.getElementById('tableTitle');
+
+    if (isHistoryMode) {
+      updateCardUI('history');
+      title.innerText = 'รายการผู้สมัครประวัติย้อนหลัง (เกิน 6 เดือน)';
+    } else {
+      updateCardUI('all');
+      document.getElementById('adminApprovalFilter').value = '';
+      title.innerText = 'รายการผู้สมัครทั้งหมด (ภายใน 6 เดือน)';
+    }
+
+    resetPageAndFilter();
+  }
+
+  function resetPageAndFilter() {
+    currentPage = 1;
+    filterAdminTable();
+  }
+
+  function filterAdminTable() {
+    const search = document.getElementById('adminSearchInput').value.toLowerCase().trim();
+    const location = document.getElementById('adminLocationFilter').value;
+    const unit = document.getElementById('adminUnitFilter').value;
+    const approval = document.getElementById('adminApprovalFilter').value;
+
+    let dataset = adminDataList.filter(item => {
+      return isHistoryMode ? !isWithinSixMonths(item.timestamp) : isWithinSixMonths(item.timestamp);
+    });
+
+    const filtered = dataset.filter(item => {
+      const matchSearch = !search ||
+        (item.fullName && item.fullName.toLowerCase().includes(search)) ||
+        (item.institution && item.institution.toLowerCase().includes(search)) ||
+        (item.major && item.major.toLowerCase().includes(search));
+      
+      const matchLocation = !location || item.location === location;
+      const matchUnit = !unit || item.workUnit === unit;
+
+      let matchApproval = true;
+      if (approval === 'approved') {
+        matchApproval = item.reviewStatus === 'reviewed';
+      } else if (approval === 'pending_approval') {
+        matchApproval = item.reviewStatus === 'pending';
+      } else if (approval === 'unassigned') {
+        matchApproval = !item.reviewStatus || item.reviewStatus === 'unassigned';
+      }
+
+      return matchSearch && matchLocation && matchUnit && matchApproval;
+    });
+
+    const totalItems = filtered.length;
+    const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
+    
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    const endIndex = Math.min(startIndex + PAGE_SIZE, totalItems);
+    const pageItems = filtered.slice(startIndex, endIndex);
+
+    document.getElementById('pageInfoText').innerText = `แสดง ${totalItems > 0 ? startIndex + 1 : 0} ถึง ${endIndex} จาก ${totalItems} รายการ`;
+    document.getElementById('currentPageNum').innerText = currentPage;
+    document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+    document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+
+    const tbody = document.getElementById('adminTableBody');
+    if (!pageItems.length) {
+      tbody.innerHTML = `<tr><td colspan="8" class="p-10 text-center text-slate-400">ไม่พบข้อมูลผู้สมัครที่ตรงเงื่อนไข</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = pageItems.map(item => {
+      const isPending = item.reviewStatus === 'pending';
+      const isReviewed = item.reviewStatus === 'reviewed';
+
+      let statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">ยังไม่มีผู้รับเรื่อง</span>`;
+      if (isReviewed) {
+        statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-teal-100 text-teal-700"><i class="fa-solid fa-circle-check mr-1"></i>พิจารณาแล้ว</span>`;
+      } else if (isPending) {
+        statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700"><i class="fa-solid fa-clock mr-1"></i>รอการพิจารณา</span>`;
+      }
+
+      let actionBtn = '';
+      if (isReviewed) {
+        actionBtn = `
+          <div class="flex items-center justify-center gap-1.5">
+            <button onclick="adminCancelApproval(${item.sheetRow})" class="px-3 py-1.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold transition border border-rose-200">
+              <i class="fa-solid fa-rotate-left mr-1"></i>ยกเลิกการอนุมัติ
+            </button>
+          </div>`;
+      } else if (isPending) {
+        actionBtn = `
+          <div class="flex items-center justify-center gap-1.5">
+            <button onclick="adminMarkReviewed(${item.sheetRow})" class="px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow">
+              <i class="fa-solid fa-check mr-1"></i>อนุมัติผล
+            </button>
+            <button onclick="adminResetUnassigned(${item.sheetRow})" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold">
+              <i class="fa-solid fa-xmark mr-1"></i>ยกเลิกผู้รับเรื่อง
+            </button>
+          </div>`;
+      } else {
+        actionBtn = `
+          <button onclick="adminClaimForReview(${item.sheetRow})" class="px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold shadow">
+            <i class="fa-solid fa-user-plus mr-1"></i>รับ นศ. ฝึกงาน
+          </button>`;
+      }
+
+      const reviewerDisplay = `
+        <div class="flex items-center justify-center gap-2">
+          <span class="font-bold text-slate-700">${item.reviewerUsername || '-'}</span>
+          <button onclick="editReviewer(${item.sheetRow}, '${item.reviewerUsername || ''}')" title="แก้ไขผู้พิจารณา" class="text-xs text-brand-600 hover:text-brand-800 p-1 bg-brand-50 hover:bg-brand-100 rounded-lg transition">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+        </div>`;
+
+      const profileImg = item.profileImageLink 
+        ? `<img src="${item.profileImageLink}" referrerpolicy="no-referrer" class="w-10 h-10 rounded-full object-cover border mx-auto shadow-sm" onerror="this.onerror=null; this.src='https://via.placeholder.com/40';">`
+        : `<div class="w-10 h-10 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mx-auto"><i class="fa-solid fa-user"></i></div>`;
+
+      return `
+        <tr onclick="openDetailModal(${item.sheetRow})" class="hover:bg-brand-50/60 transition cursor-pointer">
+          <td class="p-4 text-center" onclick="event.stopPropagation()">${profileImg}</td>
+          <td class="p-4">
+            <div class="font-bold text-slate-800 hover:text-brand-600 transition">${item.fullName} ${item.nickName ? `(${item.nickName})` : ''}</div>
+            <div class="text-xs text-slate-400"><i class="fa-solid fa-phone mr-1"></i>${item.phone || '-'}</div>
+          </td>
+          <td class="p-4 text-xs font-semibold text-slate-700">${item.location || '-'}</td>
+          <td class="p-4"><div>${item.institution || '-'}</div><div class="text-xs text-slate-400">${item.degree || ''} ${item.major || ''}</div></td>
+          <td class="p-4"><span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-brand-50 text-brand-700">${item.workUnit || '-'}</span></td>
+          <td class="p-4">${statusBadge}</td>
+          <td class="p-4 text-center" onclick="event.stopPropagation()">${reviewerDisplay}</td>
+          <td class="p-4 text-center" onclick="event.stopPropagation()">${actionBtn}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function changePage(direction) {
+    currentPage += direction;
+    filterAdminTable();
+  }
+
+  function adminClaimForReview(sheetRow) {
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(r => { if (r && r.success) loadAdminData(); })
+        .claimApplication(sheetRow, adminUser.username);
+    }
+  }
+
+  function adminMarkReviewed(sheetRow) {
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(r => { if (r && r.success) loadAdminData(); })
+        .markApplicationReviewed(sheetRow, adminUser.username);
+    }
+  }
+
+  function adminCancelApproval(sheetRow) {
+    if (!confirm('คุณต้องการยกเลิกการอนุมัติใช่หรือไม่? (สถานะจะกลับเป็น "รอการพิจารณา")')) return;
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(r => { if (r && r.success) loadAdminData(); })
+        .cancelApplicationApproval(sheetRow, 'pending');
+    }
+  }
+
+  function adminResetUnassigned(sheetRow) {
+    if (!confirm('คุณต้องการยกเลิกผู้รับเรื่องรายการนี้ใช่หรือไม่?')) return;
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(r => { if (r && r.success) loadAdminData(); })
+        .cancelApplicationApproval(sheetRow, 'unassigned');
+    }
+  }
+
+  function editReviewer(sheetRow, currentReviewer) {
+    const newReviewer = prompt('ระบุ Username ของผู้พิจารณาใหม่:', currentReviewer);
+    if (newReviewer !== null && newReviewer.trim() !== currentReviewer) {
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(r => { if (r && r.success) loadAdminData(); })
+          .updateApplicationReviewer(sheetRow, newReviewer.trim());
+      }
+    }
+  }
+
+  function openDetailModal(sheetRow) {
+    const item = adminDataList.find(x => x.sheetRow === sheetRow);
+    if (!item) return;
+
+    let fileLinksHtml = '<span class="text-slate-400">ไม่มีไฟล์แนบ</span>';
+    if (item.fileLinks && item.fileLinks.trim() !== '') {
+      const lines = item.fileLinks.split('\n');
+      fileLinksHtml = lines.map(line => {
+        const parts = line.split(': http');
+        if (parts.length >= 2) {
+          const title = parts[0].trim();
+          const url = 'http' + parts.slice(1).join(': http').trim();
+          return `<a href="${url}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-50 text-brand-700 font-semibold hover:bg-brand-100 transition mr-2 mb-2"><i class="fa-solid fa-file-lines"></i> ${title}</a>`;
+        }
+        return `<a href="${line}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-50 text-brand-700 font-semibold hover:bg-brand-100 transition mr-2 mb-2"><i class="fa-solid fa-paperclip"></i> เอกสาร</a>`;
+      }).join('');
+    }
+
+    const content = `
+      <div class="flex items-center gap-4 bg-brand-50/50 p-4 rounded-2xl">
+        ${item.profileImageLink 
+          ? `<img src="${item.profileImageLink}" referrerpolicy="no-referrer" class="w-20 h-20 rounded-full object-cover border-2 border-brand-500 shadow">`
+          : `<div class="w-20 h-20 rounded-full bg-brand-200 text-brand-700 flex items-center justify-center text-3xl"><i class="fa-solid fa-user"></i></div>`
+        }
+        <div>
+          <h4 class="text-lg font-black text-slate-800">${item.fullName} (${item.nickName || '-'})</h4>
+          <p class="text-xs text-brand-700 font-semibold">${item.institution || '-'} · ${item.major || '-'}</p>
+          <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-location-dot mr-1"></i>${item.location || '-'}</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        <div class="p-3 bg-slate-50 rounded-xl"><strong>เบอร์โทรศัพท์:</strong> ${item.phone || '-'}</div>
+        <div class="p-3 bg-slate-50 rounded-xl"><strong>Line ID:</strong> ${item.lineId || '-'}</div>
+        <div class="p-3 bg-slate-50 rounded-xl"><strong>อีเมลนักศึกษา:</strong> ${item.emailStudent || '-'}</div>
+        <div class="p-3 bg-slate-50 rounded-xl"><strong>อีเมลสถาบัน:</strong> ${item.emailInst || '-'}</div>
+        <div class="p-3 bg-slate-50 rounded-xl"><strong>ระดับการศึกษา:</strong> ${item.degree || '-'}</div>
+        <div class="p-3 bg-slate-50 rounded-xl"><strong>หน่วยงานที่ขอฝึกงาน:</strong> ${item.workUnit || '-'}</div>
+        <div class="p-3 bg-slate-50 rounded-xl"><strong>ช่วงเวลาฝึกงาน:</strong> ${item.startDate || '-'} ถึง ${item.endDate || '-'}</div>
+        <div class="p-3 bg-slate-50 rounded-xl"><strong>ผู้พิจารณา:</strong> ${item.reviewerUsername || 'ยังไม่มีผู้รับเรื่อง'}</div>
+      </div>
+
+      <div class="p-3 bg-slate-50 rounded-xl text-xs space-y-1">
+        <div><strong>ที่อยู่:</strong> ${item.address || '-'}</div>
+        <div><strong>ทักษะ/ความสามารถ:</strong> ${item.skills || '-'}</div>
+        <div><strong>ผู้ติดต่อฉุกเฉิน:</strong> ${item.emergencyName || '-'} (${item.emergencyPhone || '-'})</div>
+      </div>
+
+      <div class="p-3 bg-slate-50 rounded-xl text-xs">
+        <div class="font-bold mb-2 text-slate-600">เอกสารแนบประกอบการสมัคร:</div>
+        <div>${fileLinksHtml}</div>
+      </div>
+    `;
+
+    document.getElementById('modalContent').innerHTML = content;
+    document.getElementById('detailModal').classList.remove('hidden');
+  }
+
+  function closeDetailModal() {
+    document.getElementById('detailModal').classList.add('hidden');
+  }
+
+  function adminLogout() {
+    sessionStorage.removeItem('mitrpholAdminUser');
+    backToLogin();
+  }
+
+  function backToLogin() {
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run.withSuccessHandler(function(url) {
+        window.top.location.href = url;
+      }).getWebAppUrl();
+    } else {
+      window.location.search = '';
+    }
+  }
+</script>
+</body>
+</html>
